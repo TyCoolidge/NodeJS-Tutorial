@@ -1,0 +1,27 @@
+Web works
+Client => request => server => response => Client
+
+Program Lifecycle & Event Loop
+- Node runs non-blocking JS code and uses an event-drive code ("event Loop")
+for running logic
+- Node program exits as soon as there is no more work to do
+- The createServer() event never finishes by default (manually need to exit)
+
+Asycn code
+- Js code is non-blocking
+- use callbacks and events => order changes
+
+Requests & Responses
+- Parse request data in chunks (Streams & Buffers)
+- Avoid "double responses" after res.end()
+
+Core Modules
+- Node ships with multiple core modules (fs, http, path, etc.)
+- Code modules can be imported int0 any file
+- Import via require('module')
+
+The node module system
+- Import via require('./path) for customer files or require('module') for
+core and third-party Modules
+- Export via module.exports or just exports (for multiple)
+

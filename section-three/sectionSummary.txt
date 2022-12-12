@@ -1,0 +1,3 @@
+npm init -> creates package.json
+
+writing any custom script requires you to call it as follows: npm run 'script name'

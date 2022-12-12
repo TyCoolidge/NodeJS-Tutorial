@@ -1,0 +1,13 @@
+Types of Errors
+
+Syntax - typos
+
+Runtime
+
+Logical 
+
+initialize project with - npm init
+
+save prod dependencies --save
+save dev dependencies --save-dev
+save global dependencies -g
