@@ -26,23 +26,28 @@ const express = require('express');
 
 const app = express();
 
-app.use('/', (req, res, next) => {
-  console.log('In the middleware!');
-  next(); // allows request to travel to next middleware func
-});
+const adminRoutes = require('./routes/admin');
+const publicRoutes = require('./routes/shop');
 
-app.use('/add-product', (req, res, next) => {
-  console.log('In another middleware!');
-  res.send('<h1>Add product page</h1>'); // bad practice to uset next after sending response
-});
+app.use(express.urlencoded({ extended: false }));
 
-// it will listen for all routes that start with /
-app.use('/', (req, res, next) => {
-  console.log('In another middleware!');
-  res.send('<h1>Hello from Express</h1>'); // sends response, DOES not go to next middleware
+app.use('/admin', adminRoutes);
+app.use(publicRoutes);
+
+app.use((req, res) => {
+  res.status(404).send('<h1>Page not found</h1>');
 });
 
 app.listen(3100);
 // const server = http.createServer(app);
 
 // server.listen(3100);
+
+// app.use(publicRoutes);
+
+// app.use('/', (req, res, next) => {
+//   console.log('In the middleware!');
+//   next(); // allows request to travel to next middleware func
+// });
+
+// it will listen for all routes that start with /
