@@ -22,6 +22,8 @@
 // // => process.exit if refs(event listeners/callbacks) === 0
 
 // USING EXPRESS - Section 5
+const path = require('path');
+
 const express = require('express');
 
 const app = express();
@@ -35,7 +37,8 @@ app.use('/admin', adminRoutes);
 app.use(publicRoutes);
 
 app.use((req, res) => {
-  res.status(404).send('<h1>Page not found</h1>');
+  // res.status(404).send('<h1>Page not found</h1>');
+  res.status(404).sendFile(path.join(__dirname, 'views', 'not-found.html'));
 });
 
 app.listen(3100);
