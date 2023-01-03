@@ -28,12 +28,16 @@ const express = require('express');
 
 const app = express();
 
-const adminRoutes = require('./routes/admin');
+const adminData = require('./routes/admin');
 const publicRoutes = require('./routes/shop');
 
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/admin', adminRoutes);
+// middleware for static files folder
+// allows use to import css files
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/admin', adminData.routes);
 app.use(publicRoutes);
 
 app.use((req, res) => {

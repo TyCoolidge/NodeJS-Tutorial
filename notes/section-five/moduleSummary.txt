@@ -2,3 +2,24 @@ Express Js
 Alternatives: Adonis.js, Koa, Sails.js
 Framework: Helper functions, tools & rules that help you build your application!
 
+- Express Js is a node  js Framework - a package that adds
+a bunch of utility funcs and tools and a clear set of rules
+on how the app should be built (middleware)
+- Its highly extensible and other packages can be plugged into it
+
+middleware, next() and res()
+- express relies heavily on middleware funcs - you can add them 
+by calling use()
+- middleware funcs handle a request and should call next() to forward 
+the request to the next function in line or send a response
+
+routing 
+- you can filter requests by path and method
+- if you filter by method, paths are matched exactly
+- you can use the express.Router to split your routes across files elegantly
+
+Serve files
+- youre not limited to serving dummy text as a response
+- you can sendFiles to you users - ex: HTML files
+- if a request is directly made for a file, you can
+enable static serving for such files via express.static()
