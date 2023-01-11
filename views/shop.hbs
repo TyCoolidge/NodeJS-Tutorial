@@ -1,0 +1,28 @@
+<main>
+  {{#if products.length}}
+    <div class='grid'>
+      {{#each products}}
+        <article class='card product-item'>
+          <header class='card__header'>
+            <h1 class='product-title'>{{this.title}}</h1>
+          </header>
+          <div class='card__image'>
+            <img
+              src='https://e7.pngegg.com/pngimages/342/861/png-clipart-book-book.png'
+              alt='A Book'
+            />
+          </div>
+          <div class='card__content'>
+            <h2 class='product__price'> $19.99 </h2>
+            <p class='product__description'> A generic description </p>
+          </div>
+          <div class='card__actions'>
+            <button class='btn'> Add to Cart</button>
+          </div>
+        </article>
+      {{/each}}
+    </div>
+  {{else}}
+    <h1> No products </h1>
+  {{/if}}
+</main>

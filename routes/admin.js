@@ -13,7 +13,16 @@ router.get('/add-product', (req, res, next) => {
   // res.send(
   //   '<form action="/admin/add-product" method="POST"><input type="text" name="product" placeholder="Add Product"/><button type="submit">Submit</button></form>'
   // ); // bad practice to use next after sending response
-  res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
+  // res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
+
+  // for pug
+  res.render('add-product', {
+    pageTitle: 'Add Product',
+    path: '/admin/add-product',
+    activeAddProduct: true,
+    formsCSS: true,
+    productCSS: true,
+  });
 });
 
 router.post('/add-product', (req, res, next) => {
