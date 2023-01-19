@@ -48,8 +48,9 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
-const adminData = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 const publicRoutes = require('./routes/shop');
+const notFoundController = require('./controllers/not-found');
 
 app.use(express.urlencoded({ extended: false }));
 
@@ -57,14 +58,10 @@ app.use(express.urlencoded({ extended: false }));
 // allows use to import css files
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/admin', adminData.routes);
+app.use('/admin', adminRoutes);
 app.use(publicRoutes);
 
-app.use((req, res) => {
-  // res.status(404).send('<h1>Page not found</h1>');
-  // res.status(404).sendFile(path.join(__dirname, 'views', 'not-found.html'));
-  res.status(404).render('not-found', { pageTitle: 'Page Not Found' });
-});
+app.use(notFoundController.getNotFoundPage);
 
 app.listen(3100);
 // const server = http.createServer(app);

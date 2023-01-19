@@ -1,0 +1,15 @@
+MVC
+
+MODEL
+- represents your data in your code
+- work with your data (save, fetch)
+
+
+VIEW
+- What the users sees
+- Decoupled from your application code
+
+
+ROUTES -> CONTROLLERS
+- connects your model and your views
+- contains the "in-between" logic

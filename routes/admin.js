@@ -2,34 +2,14 @@ const path = require('path');
 
 const express = require('express');
 
-const rootDir = require('../util/path');
+const productsController = require('../controllers/products');
 
 const router = express.Router();
 
-const products = [];
-
 // can use same url route only for different API methods
-router.get('/add-product', (req, res, next) => {
-  // res.send(
-  //   '<form action="/admin/add-product" method="POST"><input type="text" name="product" placeholder="Add Product"/><button type="submit">Submit</button></form>'
-  // ); // bad practice to use next after sending response
-  // res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
+router.get('/add-product', productsController.getAddProduct);
 
-  // for pug
-  res.render('add-product', {
-    pageTitle: 'Add Product',
-    path: '/admin/add-product',
-    activeAddProduct: true,
-    formsCSS: true,
-    productCSS: true,
-  });
-});
+router.post('/add-product', productsController.postAddProduct);
 
-router.post('/add-product', (req, res, next) => {
-  products.push({ title: req.body.title });
-  res.redirect('/');
-});
-
-// module.exports = router;
-exports.routes = router;
-exports.products = products;
+module.exports = router;
+// exports.routes = router;
