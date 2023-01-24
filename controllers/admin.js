@@ -7,7 +7,7 @@ exports.getAddProduct = (req, res, next) => {
     // res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
 
     // for pug
-    res.render('add-product', {
+    res.render('admin/add-product', {
         pageTitle: 'Add Product',
         path: '/admin/add-product',
         activeAddProduct: true,
@@ -17,22 +17,19 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
-    const product = new Product(req.body.title);
+    const { title, imageUrl, price, description } = req.body;
+    const product = new Product(title, imageUrl, price, description);
     console.log(product);
     product.save();
     res.redirect('/');
 };
 
-exports.getProducts = (req, res, next) => {
-    const products = Product.fetchAll();
-    res.render('shop', {
-        products,
-        pageTitle: 'Shop',
-        path: '/',
-        activeShop: true,
-        productCSS: true,
+exports.getAdminProducts = (req, res, next) => {
+    Product.fetchAll(products => {
+        res.render('admin/products', {
+            products,
+            pageTitle: 'Admin Products',
+            path: '/admin/products',
+        });
     });
-    // by joining (this will work for all OS, ex: Windows uses \)
-    // res.sendFile(path.join(rootDir, 'views', 'shop.html'));
-    // res.send('<h1>Hello from Express</h1>'); // sends response, DOES not go to next middleware
 };

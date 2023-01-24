@@ -8,8 +8,10 @@ MODEL
 VIEW
 - What the users sees
 - Decoupled from your application code
+- Should not contain too much logic (PURE)
 
 
 ROUTES -> CONTROLLERS
 - connects your model and your views
+- Makes sure the two can communicate in both direction
 - contains the "in-between" logic
