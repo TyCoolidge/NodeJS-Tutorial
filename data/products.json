@@ -1,8 +1,1 @@
-[
-    {
-        "title": "New book",
-        "imageUrl": "https://dictionary.cambridge.org/us/images/thumb/book_noun_001_01679.jpg?version=5.0.287",
-        "description": "12.99",
-        "price": "test"
-    }
-]
+[{"title":"Book","imageUrl":"https://dictionary.cambridge.org/us/images/thumb/book_noun_001_01679.jpg?version=5.0.287","description":"New book","price":"23.99","id":"0.2590803441587486"}]
