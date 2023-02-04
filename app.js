@@ -45,6 +45,8 @@ const app = express();
 // app.set('view engine', 'pug');
 
 // EJS
+const db = require('./util/database');
+
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 

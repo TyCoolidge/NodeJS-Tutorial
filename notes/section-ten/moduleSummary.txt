@@ -1,0 +1,28 @@
+SQL vs NoSQL
+
+SQL (Structered Query Language)
+- Data Schema
+- All Data (in a Table) has to fit Schema
+- Data relations -> Tables are Connected
+  - One-to-One
+  - One-to-Many
+  - Many-to-Many
+- Example: SELECT * FROM users WHERE age > 28
+- Horizontal scalling is difficult / impossible
+- Vertical scaling is possible
+- Limitations for lots of (thousands) read and write queries per seconds
+
+NoSQL (non relational)
+- Tables are called "Collections"
+- Documents are object based and do not follow a strict schema (schema is not required)
+- You CAN relate documents but you dont have to (doing this too much can slow down queries)
+- Horizontal / Vertical scaling is possible
+- Great performance for mass read & write requests
+
+Horizontal vs Vertical Scaling
+
+Horizontal
+- Add more servers (and merge Data into one Database)
+
+Vertical
+- Improve Server Capacity / Hardware
