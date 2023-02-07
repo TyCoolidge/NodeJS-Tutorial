@@ -45,7 +45,7 @@ const app = express();
 // app.set('view engine', 'pug');
 
 // EJS
-const db = require('./util/database');
+const sequelize = require('./util/database');
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -65,7 +65,17 @@ app.use(publicRoutes);
 
 app.use(notFoundController.getNotFoundPage);
 
-app.listen(3100);
+//looks at all models and syncs to database
+sequelize
+    .sync()
+    .then(result => {
+        console.log(result);
+        app.listen(3100);
+    })
+    .catch(err => {
+        console.log(err);
+    });
+
 // const server = http.createServer(app);
 
 // server.listen(3100);

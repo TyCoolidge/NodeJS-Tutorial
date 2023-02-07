@@ -1,11 +1,25 @@
 const Product = require('../models/product');
 const Cart = require('../models/cart');
 
+// old
+// const fetchAllRender = (page, pageTitle, path, res) => {
+//     Product.fetchAll()
+//         .then(([rows, fieldData]) => {
+//             res.render(page, {
+//                 products: rows,
+//                 pageTitle,
+//                 path,
+//             });
+//         })
+//         .catch(err => console.log(err));
+// };
+
+// with sequelize
 const fetchAllRender = (page, pageTitle, path, res) => {
-    Product.fetchAll()
-        .then(([rows, fieldData]) => {
+    Product.findAll()
+        .then(products => {
             res.render(page, {
-                products: rows,
+                products,
                 pageTitle,
                 path,
             });
@@ -31,6 +45,7 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
+    // Product.findAll().then(products =>console.log(products)).catch(err => console.log(err))
     fetchAllRender('shop/index', 'Shop', '/', res);
 };
 
