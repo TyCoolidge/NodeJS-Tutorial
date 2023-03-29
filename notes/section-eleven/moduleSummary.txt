@@ -23,3 +23,14 @@ Serve files
 - you can sendFiles to you users - ex: HTML files
 - if a request is directly made for a file, you can
 enable static serving for such files via express.static()
+
+SQL
+- uses strict data schemas and relations
+- can connect your node app via packages like mysql2
+- writing quiereis is not directly related to node and something you have to learn in addition to node
+
+Sequelize
+- instead of writing SQL queries manually, you can use packages (ORMs) to focus on node code and work with
+native JS objects
+- allows you to define models and interact with the database through them
+- can easily set up relation ("Associations") and interact with your related models through them
