@@ -15,7 +15,7 @@ const Product = require('../models/product');
 
 // with sequelize
 const fetchAllRender = (page, pageTitle, path, res) => {
-    Product.findAll()
+    Product.fetchAll()
         .then(products => {
             res.render(page, {
                 products,
@@ -32,15 +32,15 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
     const productId = req.params.productId;
-    // FIND ALL Syntax
+    // FIND ALL Syntax sequelize
     // console.log(
     //     Product.findAll({ where: { id: productId } })
     //         .then(prod => prod)
     //         .catch(err => console.log(err))
     // );
-    Product.findByPk(productId)
+    Product.fetchOne(productId)
         .then(product => {
-            console.log(product);
+            console.log({ product });
             res.render('shop/product-detail', {
                 product: product,
                 pageTitle: product.title,
@@ -51,6 +51,7 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
+    console.log('index');
     // Product.findAll().then(products =>console.log(products)).catch(err => console.log(err))
     fetchAllRender('shop/index', 'Shop', '/', res);
 };

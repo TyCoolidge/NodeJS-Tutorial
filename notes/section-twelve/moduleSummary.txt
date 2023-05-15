@@ -1,0 +1,8 @@
+NoSQL Databases / MongoDB
+
+MongoDB
+Nested / Embedded Documents
+- Using full objects as a relation
+
+References
+- using ids as relation
