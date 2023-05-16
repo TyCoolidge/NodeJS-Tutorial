@@ -18,7 +18,8 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = async (req, res, next) => {
     const { title, imageUrl, description, price } = req.body;
     try {
-        const newProduct = new Product(title, imageUrl, description, price);
+        // console.log(req);
+        const newProduct = new Product(title, imageUrl, description, price, null, req.user._id);
         await newProduct.save();
         console.log('Created Product!');
         res.redirect('/admin/products');
@@ -106,20 +107,16 @@ exports.getAdminProducts = (req, res, next) => {
         .catch(e => console.log(e));
 };
 
-// exports.postDeleteProducts = (req, res, next) => {
-//     const productId = req.body.productId;
-//     // Product.destroy({}) // using 'where'
-//     Product.findByPk(productId)
-//         .then(product => {
-//             return product.destroy();
-//         })
-//         .then(result => {
-//             console.log(result);
-//             console.log('DESTROYED PRODUCT');
-//             res.redirect('/admin/products');
-//         })
-//         .catch(err => {
-//             console.log(err);
-//         });
-//     res.redirect('/admin/products');
-// };
+exports.postDeleteProducts = (req, res, next) => {
+    const productId = req.body.productId;
+    // Product.destroy({}) // using 'where'
+    Product.deleteById(productId)
+        .then(result => {
+            console.log(result);
+            console.log('DESTROYED PRODUCT');
+            res.redirect('/admin/products');
+        })
+        .catch(err => {
+            console.log(err);
+        });
+};

@@ -63,12 +63,13 @@
 const getDb = require('../util/database').getDb;
 const mongodb = require('mongodb');
 class Product {
-    constructor(title, imageUrl, description, price, id) {
+    constructor(title, imageUrl, description, price, id, userId) {
         this.title = title;
         this.price = price;
         this.description = description;
         this.imageUrl = imageUrl;
-        this._id = new mongodb.ObjectId(id);
+        this._id = id ? new mongodb.ObjectId(id) : null;
+        this.userId = userId;
     }
 
     async save() {
@@ -104,6 +105,17 @@ class Product {
             const product = await db.collection('products').findOne({ _id: new mongodb.ObjectId(productId) });
             console.log({ product });
             return product;
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    static async deleteById(productId) {
+        try {
+            const db = getDb();
+            const result = await db.collection('products').deleteOne({ _id: new mongodb.ObjectId(productId) });
+            console.log({ result });
+            return result;
         } catch (err) {
             console.log(err);
         }

@@ -59,19 +59,27 @@ app.set('views', 'views');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const notFoundController = require('./controllers/not-found');
+const User = require('./models/user');
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // only runs for incoming request not npm start
-app.use((req, res, next) => {
-    // User.findByPk(1)
-    //     .then(user => {
-    //         req.user = user;
-    //         next();
-    //     })
-    //     .catch(err => console.log(err));
-    next();
+app.use(async (req, res, next) => {
+    try {
+        const existingUser = await User.findById('6463e5e2cb3c7c1e925c678b');
+        if (existingUser) {
+            const { name, email, cart, _id } = existingUser;
+            console.log('exists');
+            req.user = new User(name, email, cart, _id);
+        } else {
+            const newUser = new User('TC', 'test@email.com', { items: [] });
+            await newUser.save();
+        }
+        next();
+    } catch (err) {
+        console.log({ err });
+    }
 });
 
 // middleware for static files folder
