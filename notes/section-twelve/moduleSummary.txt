@@ -6,3 +6,5 @@ Nested / Embedded Documents
 
 References
 - using ids as relation
+
+- No strict schemas, however you can define some using packages like Mongoose

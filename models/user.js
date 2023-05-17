@@ -72,7 +72,6 @@ class User {
                 .collection('products')
                 .find({ _id: { $in: productIds } })
                 .toArray();
-            console.log(products);
             const cartProducts = products.map(product => {
                 const { quantity } = this.cart.items.find(item => item.productId.toString() === product._id.toString());
                 return {
@@ -81,19 +80,62 @@ class User {
                 };
             });
             return cartProducts;
-        } catch (err) {}
-        return this.cart;
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async deleteFromCart(productId) {
+        try {
+            const updatedCartItems = this.cart.items.filter(item => {
+                return item.productId.toString() !== productId.toString();
+            });
+            const db = getDb();
+            const result = await db
+                .collection('users')
+                .updateOne({ _id: this._id }, { $set: { cart: { items: updatedCartItems } } });
+            return result;
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     static async findById(userId) {
         try {
             const db = getDb();
             const user = await db.collection('users').findOne({ _id: new mongodb.ObjectId(userId) });
-            console.log({ user });
             return user;
         } catch (err) {
             console.log(err);
         }
+    }
+
+    async getOrders() {
+        try {
+            const db = getDb();
+            const orders = await db.collection('orders').find({ 'user._id': this._id }).toArray();
+            return orders;
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async addOrder() {
+        try {
+            const db = getDb();
+            const cartItems = await this.getCart();
+            const order = {
+                items: cartItems,
+                user: {
+                    _id: this._id,
+                    name: this.name,
+                },
+            };
+            await db.collection('orders').insertOne(order);
+            // clear cart
+            const result = await db.collection('users').updateOne({ _id: this._id }, { $set: { cart: { items: [] } } });
+            return result;
+        } catch (err) {}
     }
 }
 

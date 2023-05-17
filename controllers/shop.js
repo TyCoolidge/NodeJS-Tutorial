@@ -60,6 +60,7 @@ exports.getCart = async (req, res, next) => {
     // console.log(req.user.cart);
     try {
         const cartProducts = await req.user.getCart();
+        console.log({ cartProducts });
         res.render('shop/cart', {
             path: '/cart',
             pageTitle: 'Your Cart',
@@ -126,65 +127,36 @@ exports.postCart = async (req, res, next) => {
     //     .catch(err => console.log(err));
 };
 
-exports.postCartDeleteProduct = (req, res, next) => {
-    const productId = req.body.productId;
-    req.user
-        .getCart()
-        .then(cart => {
-            return cart.getProducts({ where: { id: productId } });
-        })
-        .then(products => {
-            const product = products[0];
-            return product.cartItem.destroy();
-        })
-        .then(result => {
-            res.redirect('/cart');
-        })
-        .catch(err => console.log(err));
+exports.postCartDeleteProduct = async (req, res, next) => {
+    try {
+        const productId = req.body.productId;
+        const result = await req.user.deleteFromCart(productId);
+        if (result) res.redirect('/cart');
+    } catch (err) {
+        console.log(err);
+    }
 };
 
-exports.postOrder = (req, res, next) => {
-    let fetchedCart;
-    req.user
-        .getCart()
-        .then(cart => {
-            fetchedCart = cart;
-            return cart.getProducts();
-        })
-        .then(products => {
-            return req.user
-                .createOrder()
-                .then(order => {
-                    return order.addProducts(
-                        products.map(product => {
-                            product.orderItem = { quantity: product.cartItem.quantity };
-                            return product;
-                        })
-                    );
-                })
-                .catch(err => console.log(err));
-        })
-        .then(result => {
-            return fetchedCart.setProducts(null);
-        })
-        .then(result => {
-            res.redirect('/orders');
-        })
-        .catch(err => console.log(err));
+exports.postOrder = async (req, res, next) => {
+    try {
+        const result = await req.user.addOrder();
+        if (result) res.redirect('/orders');
+    } catch (err) {
+        console.log(err);
+    }
 };
 
-exports.getOrders = (req, res, next) => {
-    req.user
-        .getOrders({ include: ['products'] })
-        .then(orders => {
-            console.log(orders);
-            res.render('shop/orders', {
-                path: '/orders',
-                pageTitle: 'Your Orders',
-                orders,
-            });
-        })
-        .catch(err => console.log(err));
+exports.getOrders = async (req, res, next) => {
+    try {
+        const orders = await req.user.getOrders();
+        res.render('shop/orders', {
+            path: '/orders',
+            pageTitle: 'Your Orders',
+            orders,
+        });
+    } catch (err) {
+        console.log(err);
+    }
 };
 
 exports.getCheckout = (req, res, next) => {

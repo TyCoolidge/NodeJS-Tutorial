@@ -70,7 +70,6 @@ app.use(async (req, res, next) => {
         const existingUser = await User.findById('6463e5e2cb3c7c1e925c678b');
         if (existingUser) {
             const { name, email, cart, _id } = existingUser;
-            console.log('exists');
             req.user = new User(name, email, cart, _id);
         } else {
             const newUser = new User('TC', 'test@email.com', { items: [] });
