@@ -60,66 +60,97 @@
 // //         return db.execute('SELECT * FROM products WHERE products.id = ?', [id]);
 // //     }
 // // };
-const getDb = require('../util/database').getDb;
-const mongodb = require('mongodb');
-class Product {
-    constructor(title, imageUrl, description, price, id, userId) {
-        this.title = title;
-        this.price = price;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this._id = id ? new mongodb.ObjectId(id) : null;
-        this.userId = userId;
-    }
+// const getDb = require('../util/database').getDb;
+// const mongodb = require('mongodb');
+// class Product {
+//     constructor(title, imageUrl, description, price, id, userId) {
+//         this.title = title;
+//         this.price = price;
+//         this.description = description;
+//         this.imageUrl = imageUrl;
+//         this._id = id ? new mongodb.ObjectId(id) : null;
+//         this.userId = userId;
+//     }
 
-    async save() {
-        try {
-            const db = getDb();
-            let dbOp;
-            if (this._id) {
-                dbOp = db.collection('products').updateOne({ _id: this._id }, { $set: this });
-            } else {
-                dbOp = db.collection('products').insertOne(this);
-            }
-            const result = await dbOp;
-            console.log(result);
-            return result;
-        } catch (err) {
-            console.log(err);
-        }
-    }
+//     async save() {
+//         try {
+//             const db = getDb();
+//             let dbOp;
+//             if (this._id) {
+//                 dbOp = db.collection('products').updateOne({ _id: this._id }, { $set: this });
+//             } else {
+//                 dbOp = db.collection('products').insertOne(this);
+//             }
+//             const result = await dbOp;
+//             console.log(result);
+//             return result;
+//         } catch (err) {
+//             console.log(err);
+//         }
+//     }
 
-    static async fetchAll() {
-        try {
-            const db = getDb();
-            const products = await db.collection('products').find().toArray();
-            return products;
-        } catch (err) {
-            console.log(err);
-        }
-    }
+//     static async fetchAll() {
+//         try {
+//             const db = getDb();
+//             const products = await db.collection('products').find().toArray();
+//             return products;
+//         } catch (err) {
+//             console.log(err);
+//         }
+//     }
 
-    static async fetchOne(productId) {
-        try {
-            const db = getDb();
-            const product = await db.collection('products').findOne({ _id: new mongodb.ObjectId(productId) });
-            console.log({ product });
-            return product;
-        } catch (err) {
-            console.log(err);
-        }
-    }
+//     static async fetchOne(productId) {
+//         try {
+//             const db = getDb();
+//             const product = await db.collection('products').findOne({ _id: new mongodb.ObjectId(productId) });
+//             console.log({ product });
+//             return product;
+//         } catch (err) {
+//             console.log(err);
+//         }
+//     }
 
-    static async deleteById(productId) {
-        try {
-            const db = getDb();
-            const result = await db.collection('products').deleteOne({ _id: new mongodb.ObjectId(productId) });
-            console.log({ result });
-            return result;
-        } catch (err) {
-            console.log(err);
-        }
-    }
-}
+//     static async deleteById(productId) {
+//         try {
+//             const db = getDb();
+//             const result = await db.collection('products').deleteOne({ _id: new mongodb.ObjectId(productId) });
+//             console.log({ result });
+//             return result;
+//         } catch (err) {
+//             console.log(err);
+//         }
+//     }
+// }
 
-module.exports = Product;
+// module.exports = Product;
+
+const mongoose = require('mongoose');
+
+const Schema = mongoose.Schema;
+
+const productSchema = new Schema({
+    title: {
+        type: String,
+        required: true,
+    },
+    price: {
+        type: Number,
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    },
+    imageUrl: {
+        type: String,
+        required: true,
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+});
+
+// mongoose takes first param and capitalizes & pluralizes it
+module.exports = mongoose.model('Product', productSchema);

@@ -26,7 +26,9 @@ const path = require('path');
 
 const express = require('express');
 // const expressHandbars = require('express-handlebars');
-const mongoConnect = require('./util/database').mongoConnect;
+// const mongoConnect = require('./util/database').mongoConnect;
+const mongoose = require('mongoose');
+require('dotenv').config();
 const app = express();
 
 // HANDLEBARS
@@ -67,13 +69,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 // only runs for incoming request not npm start
 app.use(async (req, res, next) => {
     try {
-        const existingUser = await User.findById('6463e5e2cb3c7c1e925c678b');
+        const existingUser = await User.findById('646670f09609f4e58ff7bacd');
         if (existingUser) {
-            const { name, email, cart, _id } = existingUser;
-            req.user = new User(name, email, cart, _id);
+            req.user = existingUser;
         } else {
-            const newUser = new User('TC', 'test@email.com', { items: [] });
-            await newUser.save();
+            const user = new User({
+                name: 'Tyler',
+                email: 'tyler@test.com',
+                cart: {
+                    items: [],
+                },
+            });
+            user.save();
         }
         next();
     } catch (err) {
@@ -137,6 +144,15 @@ app.use(notFoundController.getNotFoundPage);
 
 // it will listen for all routes that start with /
 
-mongoConnect(() => {
-    app.listen(3800);
-});
+// mongoConnect(() => {
+//     app.listen(3800);
+// });
+
+mongoose
+    .connect(
+        `mongodb+srv://tyacoolidge:${process.env.MONGODB_PW}@cluster0.8ljpbvu.mongodb.net/shop?retryWrites=true&w=majority`
+    )
+    .then(() => {
+        app.listen(3800);
+    })
+    .catch(err => console.log(err));

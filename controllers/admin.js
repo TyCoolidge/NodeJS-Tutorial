@@ -19,7 +19,7 @@ exports.postAddProduct = async (req, res, next) => {
     const { title, imageUrl, description, price } = req.body;
     try {
         // console.log(req);
-        const newProduct = new Product(title, imageUrl, description, price, null, req.user._id);
+        const newProduct = new Product({ title, imageUrl, description, price, userId: req.user._id });
         await newProduct.save();
         console.log('Created Product!');
         res.redirect('/admin/products');
@@ -62,7 +62,7 @@ exports.getEditProduct = (req, res, next) => {
         return res.redirect('/');
     }
     const productId = req.params.productId;
-    Product.fetchOne(productId)
+    Product.findById(productId)
         // req.user
         //     .getProducts({ where: { id: productId } })
         // Product.findByPk(productId)
@@ -80,43 +80,40 @@ exports.getEditProduct = (req, res, next) => {
         .catch(e => console.log(e));
 };
 
-exports.postEditProduct = (req, res, next) => {
-    const productId = req.body.productId;
-    const { title, imageUrl, description, price } = req.body;
-
-    const product = new Product(title, imageUrl, description, price, productId)
-        .save()
-        .then(result => {
-            console.log('updated product');
-            res.redirect('/admin/products'); // move redirect here so we redirect after promise is fulfilled
-        })
-        .catch(e => console.log(e));
+exports.postEditProduct = async (req, res, next) => {
+    try {
+        const productId = req.body.productId;
+        const { title, imageUrl, description, price } = req.body;
+        await Product.findOneAndUpdate({ _id: productId }, { title, imageUrl, description, price }); // will do an update if product exist
+        console.log('updated product');
+        res.redirect('/admin/products'); // move redirect here so we redirect after promise is fulfilled
+    } catch (err) {
+        console.log(err);
+    }
 };
 
-exports.getAdminProducts = (req, res, next) => {
-    Product.fetchAll()
-        // req.user
-        //     .getProducts()
-        .then(products => {
-            res.render('admin/products', {
-                products,
-                pageTitle: 'Admin Products',
-                path: '/admin/products',
-            });
-        })
-        .catch(e => console.log(e));
-};
-
-exports.postDeleteProducts = (req, res, next) => {
-    const productId = req.body.productId;
-    // Product.destroy({}) // using 'where'
-    Product.deleteById(productId)
-        .then(result => {
-            console.log(result);
-            console.log('DESTROYED PRODUCT');
-            res.redirect('/admin/products');
-        })
-        .catch(err => {
-            console.log(err);
+exports.getAdminProducts = async (req, res, next) => {
+    try {
+        // const products = await Product.find().select('title price -_id').populate('userId', 'name');
+        const products = await Product.find();
+        console.log(products);
+        res.render('admin/products', {
+            products,
+            pageTitle: 'Admin Products',
+            path: '/admin/products',
         });
+    } catch (err) {
+        console.log(e);
+    }
+};
+
+exports.postDeleteProducts = async (req, res, next) => {
+    try {
+        const productId = req.body.productId;
+        await Product.findByIdAndRemove(productId);
+        console.log('DESTROYED PRODUCT');
+        res.redirect('/admin/products');
+    } catch (err) {
+        console.log(err);
+    }
 };

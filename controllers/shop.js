@@ -14,40 +14,41 @@ const Product = require('../models/product');
 // };
 
 // with sequelize
-const fetchAllRender = (page, pageTitle, path, res) => {
-    Product.fetchAll()
-        .then(products => {
-            res.render(page, {
-                products,
-                pageTitle,
-                path,
-            });
-        })
-        .catch(err => console.log(err));
+const fetchAllRender = async (page, pageTitle, path, res) => {
+    try {
+        const products = await Product.find();
+        res.render(page, {
+            products,
+            pageTitle,
+            path,
+        });
+    } catch (err) {
+        console.log(err);
+    }
 };
 
 exports.getProducts = (req, res, next) => {
     fetchAllRender('shop/product-list', 'All products', '/products', res);
 };
 
-exports.getProduct = (req, res, next) => {
-    const productId = req.params.productId;
+exports.getProduct = async (req, res, next) => {
+    try {
+        const productId = req.params.productId;
+        const product = await Product.findById(productId);
+        res.render('shop/product-detail', {
+            product: product,
+            pageTitle: product.title,
+            path: '/products',
+        });
+    } catch (err) {
+        console.log(err);
+    }
     // FIND ALL Syntax sequelize
     // console.log(
     //     Product.findAll({ where: { id: productId } })
     //         .then(prod => prod)
     //         .catch(err => console.log(err))
     // );
-    Product.fetchOne(productId)
-        .then(product => {
-            console.log({ product });
-            res.render('shop/product-detail', {
-                product: product,
-                pageTitle: product.title,
-                path: '/products',
-            });
-        })
-        .catch(err => console.log(err));
 };
 
 exports.getIndex = (req, res, next) => {
@@ -91,7 +92,7 @@ exports.getCart = async (req, res, next) => {
 exports.postCart = async (req, res, next) => {
     const { productId } = req.body;
     try {
-        const { userId, ...product } = await Product.fetchOne(productId);
+        const product = await Product.findById(productId);
         const result = await req.user.addToCart(product);
         console.log(result);
         res.redirect('/cart');
