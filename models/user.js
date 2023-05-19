@@ -140,7 +140,6 @@
 // }
 
 // module.exports = User;
-
 const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
@@ -184,6 +183,27 @@ userSchema.methods.addToCart = async function (product) {
         }
 
         this.cart = { items: updatedCartItems };
+        return await this.save();
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+userSchema.methods.removeFromCart = async function (productId) {
+    try {
+        const updatedCartItems = this.cart.items.filter(item => {
+            return item.productId.toString() !== productId.toString();
+        });
+        this.cart = { items: updatedCartItems };
+        return await this.save();
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+userSchema.methods.clearCart = async function () {
+    try {
+        this.cart = { items: [] };
         return await this.save();
     } catch (err) {
         console.log(err);
