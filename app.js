@@ -25,12 +25,19 @@
 const path = require('path');
 
 const express = require('express');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
+// TODO  process ENV didnt work here
+const MONGO_URI = `mongodb+srv://tyacoolidge:E6imS1oVko9dYP4L@cluster0.8ljpbvu.mongodb.net/shop`;
 // const expressHandbars = require('express-handlebars');
 // const mongoConnect = require('./util/database').mongoConnect;
 const mongoose = require('mongoose');
 require('dotenv').config();
 const app = express();
-
+const store = new MongoDBStore({
+    uri: MONGO_URI,
+    collection: 'sessions',
+});
 // HANDLEBARS
 // default is views/layouts/
 // app.engine(
@@ -60,39 +67,29 @@ app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 const notFoundController = require('./controllers/not-found');
 const User = require('./models/user');
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// only runs for incoming request not npm start
-app.use(async (req, res, next) => {
-    try {
-        const existingUser = await User.findById('646670f09609f4e58ff7bacd');
-        if (existingUser) {
-            req.user = existingUser;
-        } else {
-            const user = new User({
-                name: 'Tyler',
-                email: 'tyler@test.com',
-                cart: {
-                    items: [],
-                },
-            });
-            user.save();
-        }
-        next();
-    } catch (err) {
-        console.log({ err });
-    }
-});
+// NOTE in product the secret should be long
+app.use(session({ secret: 'superdupersecretkey', resave: false, saveUninitialized: false, store }));
 
+app.use(async (req, res, next) => {
+    if (req.session.user) {
+        const existingUser = await User.findById(req.session.user._id);
+        req.user = existingUser;
+    }
+    next();
+});
 // middleware for static files folder
 // allows use to import css files
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(notFoundController.getNotFoundPage);
 
@@ -149,9 +146,7 @@ app.use(notFoundController.getNotFoundPage);
 // });
 
 mongoose
-    .connect(
-        `mongodb+srv://tyacoolidge:${process.env.MONGODB_PW}@cluster0.8ljpbvu.mongodb.net/shop?retryWrites=true&w=majority`
-    )
+    .connect(MONGO_URI)
     .then(() => {
         app.listen(3800);
     })

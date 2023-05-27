@@ -15,13 +15,14 @@ const Order = require('../models/order');
 // };
 
 // with sequelize
-const fetchAllRender = async (page, pageTitle, path, res) => {
+const fetchAllRender = async (page, pageTitle, path, req, res) => {
     try {
         const products = await Product.find();
         res.render(page, {
             products,
             pageTitle,
             path,
+            isAuthenticated: req.session.isLoggedIn,
         });
     } catch (err) {
         console.log(err);
@@ -29,7 +30,7 @@ const fetchAllRender = async (page, pageTitle, path, res) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    fetchAllRender('shop/product-list', 'All products', '/products', res);
+    fetchAllRender('shop/product-list', 'All products', '/products', req, res);
 };
 
 exports.getProduct = async (req, res, next) => {
@@ -40,6 +41,7 @@ exports.getProduct = async (req, res, next) => {
             product: product,
             pageTitle: product.title,
             path: '/products',
+            isAuthenticated: req.session.isLoggedIn,
         });
     } catch (err) {
         console.log(err);
@@ -55,7 +57,7 @@ exports.getProduct = async (req, res, next) => {
 exports.getIndex = (req, res, next) => {
     console.log('index');
     // Product.findAll().then(products =>console.log(products)).catch(err => console.log(err))
-    fetchAllRender('shop/index', 'Shop', '/', res);
+    fetchAllRender('shop/index', 'Shop', '/', req, res);
 };
 
 exports.getCart = async (req, res, next) => {
@@ -68,6 +70,7 @@ exports.getCart = async (req, res, next) => {
             path: '/cart',
             pageTitle: 'Your Cart',
             products: cartProducts,
+            isAuthenticated: req.session.isLoggedIn,
         });
     } catch (err) {
         console.log(err);
@@ -171,6 +174,7 @@ exports.getOrders = async (req, res, next) => {
             path: '/orders',
             pageTitle: 'Your Orders',
             orders,
+            isAuthenticated: req.session.isLoggedIn,
         });
     } catch (err) {
         console.log(err);
@@ -181,5 +185,6 @@ exports.getCheckout = (req, res, next) => {
     res.render('shop/checkout', {
         path: '/checkout',
         pageTitle: 'Checkout',
+        isAuthenticated: req.session.isLoggedIn,
     });
 };

@@ -1,3 +1,5 @@
-Mongoose
+Sessions & Cookies
 
-ODM - Object-Document Mapping library
+Cookie are stored on client-side
+
+

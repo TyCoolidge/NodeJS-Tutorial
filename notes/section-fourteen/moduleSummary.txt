@@ -1,0 +1,23 @@
+Mongoose
+
+ODM - Object-Document Mapping library
+
+Session?
+Stores user data in the Server
+Prevents customers from seeing secured data
+
+Cookies
+- Great for storing data on the client (browser)
+- Do NOT store senstive data here
+- Can be configured to expire when the browser is closed ("session cookie")
+or when ceratin expiry date is reached  ("permanent cookie")
+- Works well together with Sessions
+
+Sessions
+- Stored on server NOT on client
+- Great for storing sensitive data that should survive across requests
+- You can store ANYTHING in Sessions
+- Often used for storing user data / auth status
+- Identified via Cookie "dont confuse with Session Cookie"
+- You can use different storages for saving session on server
+
