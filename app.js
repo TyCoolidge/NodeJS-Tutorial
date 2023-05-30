@@ -27,6 +27,8 @@ const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
+const flash = require('connect-flash');
 // TODO  process ENV didnt work here
 const MONGO_URI = `mongodb+srv://tyacoolidge:E6imS1oVko9dYP4L@cluster0.8ljpbvu.mongodb.net/shop`;
 // const expressHandbars = require('express-handlebars');
@@ -38,6 +40,7 @@ const store = new MongoDBStore({
     uri: MONGO_URI,
     collection: 'sessions',
 });
+const csrfProtection = csrf();
 // HANDLEBARS
 // default is views/layouts/
 // app.engine(
@@ -77,6 +80,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // NOTE in product the secret should be long
 app.use(session({ secret: 'superdupersecretkey', resave: false, saveUninitialized: false, store }));
 
+app.use(csrfProtection);
+app.use(flash());
+
 app.use(async (req, res, next) => {
     if (req.session.user) {
         const existingUser = await User.findById(req.session.user._id);
@@ -86,6 +92,13 @@ app.use(async (req, res, next) => {
 });
 // middleware for static files folder
 // allows use to import css files
+
+app.use((req, res, next) => {
+    // setting local vars that are set in our views
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);

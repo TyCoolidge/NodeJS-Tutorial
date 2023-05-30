@@ -22,7 +22,8 @@ const fetchAllRender = async (page, pageTitle, path, req, res) => {
             products,
             pageTitle,
             path,
-            isAuthenticated: req.session.isLoggedIn,
+            // isAuthenticated: req.session.isLoggedIn,
+            // csrfToken: req.csrfToken(),
         });
     } catch (err) {
         console.log(err);
@@ -41,7 +42,6 @@ exports.getProduct = async (req, res, next) => {
             product: product,
             pageTitle: product.title,
             path: '/products',
-            isAuthenticated: req.session.isLoggedIn,
         });
     } catch (err) {
         console.log(err);
@@ -70,7 +70,6 @@ exports.getCart = async (req, res, next) => {
             path: '/cart',
             pageTitle: 'Your Cart',
             products: cartProducts,
-            isAuthenticated: req.session.isLoggedIn,
         });
     } catch (err) {
         console.log(err);
@@ -152,7 +151,7 @@ exports.postOrder = async (req, res, next) => {
         const order = new Order({
             user: {
                 userId: req.user._id,
-                name: req.user.name,
+                email: req.user.email,
             },
             products: products,
         });
@@ -174,7 +173,6 @@ exports.getOrders = async (req, res, next) => {
             path: '/orders',
             pageTitle: 'Your Orders',
             orders,
-            isAuthenticated: req.session.isLoggedIn,
         });
     } catch (err) {
         console.log(err);
@@ -185,6 +183,5 @@ exports.getCheckout = (req, res, next) => {
     res.render('shop/checkout', {
         path: '/checkout',
         pageTitle: 'Checkout',
-        isAuthenticated: req.session.isLoggedIn,
     });
 };

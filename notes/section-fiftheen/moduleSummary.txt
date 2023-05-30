@@ -1,0 +1,7 @@
+CSRF Attacks
+
+Cross-Site Request Forgery
+https://owasp.org/www-community/attacks/csrf
+
+Testing with csurf package
+DO NOT use in production as package is deprecated

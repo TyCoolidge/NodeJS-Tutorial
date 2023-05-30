@@ -3,11 +3,15 @@ const path = require('path');
 const express = require('express');
 
 const adminController = require('../controllers/admin');
+const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
+// middleware
+router.use(isAuth);
 // can use same url route only for different API methods
 // /admin/add-product => GET
+// request travels from left -> right
 router.get('/add-product', adminController.getAddProduct);
 
 // /admin/products => GET

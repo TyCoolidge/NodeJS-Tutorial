@@ -1,4 +1,7 @@
+const bcrypt = require('bcryptjs');
+
 const User = require('../models/user');
+
 exports.getLogin = (req, res, next) => {
     // const isLoggedIn = req
     //     .get('Cookie')
@@ -9,28 +12,54 @@ exports.getLogin = (req, res, next) => {
     res.render('auth/login', {
         path: '/login',
         pageTitle: 'Login',
-        isAuthenticated: req.session.isLoggedIn,
+        errorMessage: req.flash('error'),
     });
+};
+
+exports.getSignup = (req, res, next) => {
+    res.render('auth/signup', {
+        path: '/signup',
+        pageTitle: 'Signup',
+    });
+};
+
+exports.postSignup = async (req, res, next) => {
+    try {
+        const { email, password, confirmPassword } = req.body;
+        const existingEmail = await User.findOne({ email });
+        if (existingEmail) {
+            return res.redirect('/signup');
+        }
+        const hashedPassword = await bcrypt.hash(password, 12);
+        const user = new User({
+            email,
+            password: hashedPassword,
+            cart: { items: [] },
+        });
+        await user.save();
+        return res.redirect('/login');
+    } catch (err) {
+        console.log(err);
+    }
 };
 
 exports.postLogin = async (req, res, next) => {
     try {
-        const existingUser = await User.findById('646670f09609f4e58ff7bacd');
-        if (existingUser) {
-            req.session.user = existingUser;
-        } else {
-            const user = new User({
-                name: 'Tyler',
-                email: 'tyler@test.com',
-                cart: {
-                    items: [],
-                },
-            });
-            user.save();
-            req.session.user = user;
+        const { email, password } = req.body;
+        const existingUser = await User.findOne({ email });
+        if (!existingUser) {
+            req.flash('error', 'Invalid email');
+            return res.redirect('/login');
         }
-        req.session.isLoggedIn = true;
-        res.redirect('/');
+        const doesPasswordMatch = await bcrypt.compare(password, existingUser.password);
+        if (doesPasswordMatch) {
+            req.session.isLoggedIn = true;
+            req.session.user = existingUser;
+            await req.session.save();
+            return res.redirect('/');
+        }
+        req.flash('error', 'Invalid password');
+        return res.redirect('/login');
     } catch (err) {
         console.log({ err });
     }
@@ -44,7 +73,6 @@ exports.postLogin = async (req, res, next) => {
 
 exports.postLogout = async (req, res, next) => {
     req.session.destroy(err => {
-        console.log('logout err', err);
         if (!err) res.redirect('/');
     });
 };
