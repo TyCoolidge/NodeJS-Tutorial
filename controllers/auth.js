@@ -1,6 +1,15 @@
 const bcrypt = require('bcryptjs');
-
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
 const User = require('../models/user');
+
+const transporter = nodemailer.createTransport(
+    sendgridTransport({
+        auth: {
+            api_key: process.env.SENDGRID_API,
+        },
+    })
+);
 
 exports.getLogin = (req, res, next) => {
     // const isLoggedIn = req
@@ -20,6 +29,7 @@ exports.getSignup = (req, res, next) => {
     res.render('auth/signup', {
         path: '/signup',
         pageTitle: 'Signup',
+        errorMessage: req.flash('error'),
     });
 };
 
@@ -28,6 +38,7 @@ exports.postSignup = async (req, res, next) => {
         const { email, password, confirmPassword } = req.body;
         const existingEmail = await User.findOne({ email });
         if (existingEmail) {
+            req.flash('error', 'Email already exists, please pick a different one.');
             return res.redirect('/signup');
         }
         const hashedPassword = await bcrypt.hash(password, 12);
@@ -37,7 +48,15 @@ exports.postSignup = async (req, res, next) => {
             cart: { items: [] },
         });
         await user.save();
-        return res.redirect('/login');
+        res.redirect('/login');
+        // changed order because we still want to login even if the email throws an error
+        // Never use this in a 'blocking' way. We dont want to slow down large scale application
+        return await transporter.sendMail({
+            to: email,
+            from: 'tylercoolidge1998@gmail.com',
+            subject: 'Signup Completed!',
+            html: '<h1>Signup Successful</h1>',
+        });
     } catch (err) {
         console.log(err);
     }
@@ -74,5 +93,14 @@ exports.postLogin = async (req, res, next) => {
 exports.postLogout = async (req, res, next) => {
     req.session.destroy(err => {
         if (!err) res.redirect('/');
+    });
+};
+
+// renders initial page
+exports.getReset = async (req, res, next) => {
+    res.render('auth/reset', {
+        path: '/reset',
+        pageTitle: 'Reset Password',
+        errorMessage: req.flash('error'),
     });
 };

@@ -5,3 +5,16 @@ https://owasp.org/www-community/attacks/csrf
 
 Testing with csurf package
 DO NOT use in production as package is deprecated
+
+Authentication
+- means that not every visitor of the page can view and interact w/ everything
+- has to happen on the server-side & builds up on sessions
+- you can protect routes by checking the (session-controlled) login status right
+before you access a controller action
+
+Security & UX
+- Passwords should be stored in a hashed form
+- CSRF attacks are a real issue and you should
+include CSRF protection in ANY application you build!
+- For better UX you can flash data/messages into the session
+which you can display in your views

@@ -1,0 +1,4 @@
+Sending Email
+
+Node Server -> Mail Server -> User
+Our Code      3rd-party service
