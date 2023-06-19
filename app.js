@@ -94,6 +94,7 @@ app.use(async (req, res, next) => {
 // allows use to import css files
 
 app.use((req, res, next) => {
+    console.log(req.csrfToken());
     // setting local vars that are set in our views
     res.locals.isAuthenticated = req.session.isLoggedIn;
     res.locals.csrfToken = req.csrfToken();

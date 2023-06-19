@@ -15,6 +15,7 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = async (req, res, next) => {
+    console.log(req.body);
     const { title, imageUrl, description, price } = req.body;
     try {
         // console.log(req);
@@ -83,7 +84,12 @@ exports.postEditProduct = async (req, res, next) => {
     try {
         const productId = req.body.productId;
         const { title, imageUrl, description, price } = req.body;
-        await Product.findOneAndUpdate({ _id: productId }, { title, imageUrl, description, price }); // will do an update if product exist
+        const product = await Product.findOneAndUpdate(
+            // if product is found, then we will update
+            { _id: productId, userId: req.user._id },
+            { title, imageUrl, description, price }
+        );
+        if (!product) return res.redirect('/');
         console.log('updated product');
         res.redirect('/admin/products'); // move redirect here so we redirect after promise is fulfilled
     } catch (err) {
@@ -94,8 +100,7 @@ exports.postEditProduct = async (req, res, next) => {
 exports.getAdminProducts = async (req, res, next) => {
     try {
         // const products = await Product.find().select('title price -_id').populate('userId', 'name');
-        const products = await Product.find();
-        console.log(products);
+        const products = await Product.find({ userId: req.user._id });
         res.render('admin/products', {
             products,
             pageTitle: 'Admin Products',
@@ -109,7 +114,8 @@ exports.getAdminProducts = async (req, res, next) => {
 exports.postDeleteProducts = async (req, res, next) => {
     try {
         const productId = req.body.productId;
-        await Product.findByIdAndRemove(productId);
+        const result = await Product.findOneAndDelete({ _id: productId, userId: req.user._id });
+        if (!result) return res.redirect('/');
         console.log('DESTROYED PRODUCT');
         res.redirect('/admin/products');
     } catch (err) {

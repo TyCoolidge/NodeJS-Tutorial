@@ -2,3 +2,12 @@ Sending Email
 
 Node Server -> Mail Server -> User
 Our Code      3rd-party service
+
+Password Resetting
+- has to be implemented in a way that prevents user from resetting random user accounts
+- reset tokens have to be random, unguessable and unique
+
+Authorization
+- is an important part of every app
+- not every authenticated user should be able to do everything
+- instead, lock down access by restricting permissions of users
