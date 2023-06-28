@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
 const User = require('../models/user');
-const { use } = require('../routes/auth');
+const { validationResult } = require('express-validator');
 
 const transporter = nodemailer.createTransport(
     sendgridTransport({
@@ -24,6 +24,8 @@ exports.getLogin = (req, res, next) => {
         path: '/login',
         pageTitle: 'Login',
         errorMessage: req.flash('error'),
+        oldInput: { email: '', password: '' },
+        validationErrors: [],
     });
 };
 
@@ -32,16 +34,23 @@ exports.getSignup = (req, res, next) => {
         path: '/signup',
         pageTitle: 'Signup',
         errorMessage: req.flash('error'),
+        oldInput: { email: '', password: '', confirmPassword: '' },
+        validationErrors: [],
     });
 };
 
 exports.postSignup = async (req, res, next) => {
+    const { email, password, confirmPassword } = req.body;
     try {
-        const { email, password, confirmPassword } = req.body;
-        const existingEmail = await User.findOne({ email });
-        if (existingEmail) {
-            req.flash('error', 'Email already exists, please pick a different one.');
-            return res.redirect('/signup');
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).render('auth/signup', {
+                path: '/signup',
+                pageTitle: 'Signup',
+                errorMessage: errors.array()[0].msg,
+                oldInput: { email, password, confirmPassword },
+                validationErrors: errors.array(),
+            });
         }
         const hashedPassword = await bcrypt.hash(password, 12);
         const user = new User({
@@ -65,32 +74,26 @@ exports.postSignup = async (req, res, next) => {
 };
 
 exports.postLogin = async (req, res, next) => {
-    try {
-        const { email, password } = req.body;
-        const existingUser = await User.findOne({ email });
-        if (!existingUser) {
-            req.flash('error', 'Invalid email');
-            return res.redirect('/login');
-        }
-        const doesPasswordMatch = await bcrypt.compare(password, existingUser.password);
-        if (doesPasswordMatch) {
-            req.session.isLoggedIn = true;
-            req.session.user = existingUser;
-            await req.session.save();
-            return res.redirect('/');
-        }
-        req.flash('error', 'Invalid password');
-        return res.redirect('/login');
-    } catch (err) {
-        console.log({ err });
+    const { email, password } = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            errorMessage: errors.array()[0].msg,
+            oldInput: { email, password },
+            validationErrors: errors.array(),
+        });
     }
-    // req.isLoggedIn = true; -> values gets reset on each function call
-    // Secure -> only HTTPS
-    // httpOnly -> only HTTP
-    // Max-Age -> timer in seconds on how long cookie stays alive
-    // Expires -> date format; ex: Wed, 21 Oct 2015 07:28:00 GMT
-    // res.setHeader('Set-Cookie', 'loggedIn=true; Max-Age=10');
+
+    return res.redirect('/');
 };
+// req.isLoggedIn = true; -> values gets reset on each function call
+// Secure -> only HTTPS
+// httpOnly -> only HTTP
+// Max-Age -> timer in seconds on how long cookie stays alive
+// Expires -> date format; ex: Wed, 21 Oct 2015 07:28:00 GMT
+// res.setHeader('Set-Cookie', 'loggedIn=true; Max-Age=10');
 
 exports.postLogout = async (req, res, next) => {
     req.session.destroy(err => {

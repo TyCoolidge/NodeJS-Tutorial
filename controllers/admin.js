@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const { validationResult } = require('express-validator');
 
 exports.getAddProduct = (req, res, next) => {
     // res.send(
@@ -11,13 +12,33 @@ exports.getAddProduct = (req, res, next) => {
         pageTitle: 'Add Product',
         path: '/admin/add-product',
         editing: false,
+        hasError: false,
+        errorMessage: null,
+        validationErrors: [],
     });
 };
 
 exports.postAddProduct = async (req, res, next) => {
-    console.log(req.body);
     const { title, imageUrl, description, price } = req.body;
+    const errors = validationResult(req);
     try {
+        if (!errors.isEmpty()) {
+            console.log(errors);
+            return res.status(422).render('admin/edit-product', {
+                pageTitle: 'Add Product',
+                path: '/admin/edit-product',
+                editing: false,
+                hasError: true,
+                product: {
+                    title,
+                    imageUrl,
+                    description,
+                    price,
+                },
+                errorMessage: errors.array()[0].msg,
+                validationErrors: errors.array(),
+            });
+        }
         // console.log(req);
         const newProduct = new Product({ title, imageUrl, description, price, userId: req.user._id });
         await newProduct.save();
@@ -75,15 +96,37 @@ exports.getEditProduct = (req, res, next) => {
                 path: '/admin/edit-product',
                 editing: editMode,
                 product,
+                hasError: false,
+                errorMessage: null,
+                validationErrors: [],
             });
         })
         .catch(e => console.log(e));
 };
 
 exports.postEditProduct = async (req, res, next) => {
+    const productId = req.body.productId;
+    const { title, imageUrl, description, price } = req.body;
+    const errors = validationResult(req);
     try {
-        const productId = req.body.productId;
-        const { title, imageUrl, description, price } = req.body;
+        if (!errors.isEmpty()) {
+            console.log(errors);
+            return res.status(422).render('admin/edit-product', {
+                pageTitle: 'Edit Product',
+                path: '/admin/edit-product',
+                editing: true,
+                hasError: true,
+                product: {
+                    title,
+                    imageUrl,
+                    description,
+                    price,
+                    _id: productId,
+                },
+                errorMessage: errors.array()[0].msg,
+                validationErrors: errors.array(),
+            });
+        }
         const product = await Product.findOneAndUpdate(
             // if product is found, then we will update
             { _id: productId, userId: req.user._id },

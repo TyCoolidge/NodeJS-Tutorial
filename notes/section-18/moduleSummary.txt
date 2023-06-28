@@ -1,0 +1,6 @@
+Understanding Validation
+
+Can Validate on Client Side (optional)
+Can Validate on Server Side (required)
+
+or built in validation on DB
