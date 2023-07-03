@@ -45,7 +45,21 @@ exports.postAddProduct = async (req, res, next) => {
         console.log('Created Product!');
         res.redirect('/admin/products');
     } catch (err) {
-        console.log(err);
+        // return res.status(500).render('admin/edit-product', {
+        //     pageTitle: 'Add Product',
+        //     path: '/admin/add-product',
+        //     editing: false,
+        //     hasError: true,
+        //     product: {
+        //         title,
+        //         imageUrl,
+        //         description,
+        //         price,
+        //     },
+        //     errorMessage: 'Database operation failed, please try again',
+        //     validationErrors: [],
+        // });
+        res.redirect('/500');
     }
     // const product = new Product(null, title, imageUrl, description, price);
     // console.log(product);

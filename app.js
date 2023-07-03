@@ -71,7 +71,7 @@ app.set('views', 'views');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
-const notFoundController = require('./controllers/not-found');
+const errorController = require('./controllers/not-found');
 const User = require('./models/user');
 
 app.use(express.urlencoded({ extended: false }));
@@ -84,11 +84,17 @@ app.use(csrfProtection);
 app.use(flash());
 
 app.use(async (req, res, next) => {
-    if (req.session.user) {
-        const existingUser = await User.findById(req.session.user._id);
-        req.user = existingUser;
+    if (!req.session.user) {
+        next();
     }
-    next();
+    try {
+        const existingUser = await User.findById(req.session.user._id);
+        if (!existingUser) return next();
+        req.user = existingUser;
+        next();
+    } catch (err) {
+        throw new Error(err);
+    }
 });
 // middleware for static files folder
 // allows use to import css files
@@ -105,7 +111,8 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
-app.use(notFoundController.getNotFoundPage);
+app.get('/500', errorController.get500);
+app.use(errorController.getNotFoundPage);
 
 // Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 // User.hasMany(Product); // don't need both but better readability

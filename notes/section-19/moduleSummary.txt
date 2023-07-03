@@ -1,0 +1,38 @@
+Different Types of Errors
+
+- Technical / Network
+  -- MongoDB server is down
+    --- Show error page to user
+
+- "Expected"
+  -- File cant be read, database operation fails
+    --- inform user, possibly retry
+
+- Bugs / Logical
+  -- User object used when it doesnt exist
+    --- Fix during development
+
+---------------------------
+Error is thrown
+
+Sync Code -> try - catch
+
+Async code -> then. catch.
+
+Both: 
+  Directly handle error
+  User express error handling fuction
+
+---------------------------
+No error is thrown
+
+Valudate values
+  Throw Error
+  Directly handle error
+---------------------------
+
+After handling we can:
+
+ - Error page (status 500 page)
+ - Show intended page / response with error inform
+ - Redirect
