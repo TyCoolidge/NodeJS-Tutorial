@@ -26,7 +26,9 @@ const fetchAllRender = async (page, pageTitle, path, req, res) => {
             // csrfToken: req.csrfToken(),
         });
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 };
 
@@ -44,7 +46,9 @@ exports.getProduct = async (req, res, next) => {
             path: '/products',
         });
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
     // FIND ALL Syntax sequelize
     // console.log(
@@ -72,7 +76,9 @@ exports.getCart = async (req, res, next) => {
             products: cartProducts,
         });
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 
     // Cart.getCart(cart => {
@@ -101,7 +107,9 @@ exports.postCart = async (req, res, next) => {
         console.log(result);
         res.redirect('/cart');
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
     // let fetchedCart;
     // let newQuantity = 1;
@@ -138,7 +146,9 @@ exports.postCartDeleteProduct = async (req, res, next) => {
         const result = await req.user.removeFromCart(productId);
         if (result) res.redirect('/cart');
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 };
 
@@ -161,7 +171,9 @@ exports.postOrder = async (req, res, next) => {
             res.redirect('/orders');
         }
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 };
 
@@ -175,7 +187,9 @@ exports.getOrders = async (req, res, next) => {
             orders,
         });
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 };
 

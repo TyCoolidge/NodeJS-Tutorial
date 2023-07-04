@@ -83,19 +83,6 @@ app.use(session({ secret: 'superdupersecretkey', resave: false, saveUninitialize
 app.use(csrfProtection);
 app.use(flash());
 
-app.use(async (req, res, next) => {
-    if (!req.session.user) {
-        next();
-    }
-    try {
-        const existingUser = await User.findById(req.session.user._id);
-        if (!existingUser) return next();
-        req.user = existingUser;
-        next();
-    } catch (err) {
-        throw new Error(err);
-    }
-});
 // middleware for static files folder
 // allows use to import css files
 
@@ -107,6 +94,21 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(async (req, res, next) => {
+    if (!req.session.user) {
+        next();
+    }
+    try {
+        const existingUser = await User.findById(req.session.user._id);
+        if (!existingUser) return next();
+        req.user = existingUser;
+        next();
+    } catch (err) {
+        // IMPORTANT - in async / callback middleware you must next() the error to avoid infinite loop
+        next(new Error(err));
+    }
+});
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -114,6 +116,11 @@ app.use(authRoutes);
 app.get('/500', errorController.get500);
 app.use(errorController.getNotFoundPage);
 
+app.use((error, req, res, next) => {
+    // res.status(error.httpStatusCode).render(...)
+    // res.redirect('/500');
+    res.status(500).render('500', { pageTitle: 'Error', path: '/500', isAuthenticated: req.session.isLoggedIn });
+});
 // Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 // User.hasMany(Product); // don't need both but better readability
 // User.hasOne(Cart);

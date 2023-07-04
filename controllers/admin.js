@@ -21,24 +21,23 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = async (req, res, next) => {
     const { title, imageUrl, description, price } = req.body;
     const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).render('admin/edit-product', {
+            pageTitle: 'Add Product',
+            path: '/admin/edit-product',
+            editing: false,
+            hasError: true,
+            product: {
+                title,
+                imageUrl,
+                description,
+                price,
+            },
+            errorMessage: errors.array()[0].msg,
+            validationErrors: errors.array(),
+        });
+    }
     try {
-        if (!errors.isEmpty()) {
-            console.log(errors);
-            return res.status(422).render('admin/edit-product', {
-                pageTitle: 'Add Product',
-                path: '/admin/edit-product',
-                editing: false,
-                hasError: true,
-                product: {
-                    title,
-                    imageUrl,
-                    description,
-                    price,
-                },
-                errorMessage: errors.array()[0].msg,
-                validationErrors: errors.array(),
-            });
-        }
         // console.log(req);
         const newProduct = new Product({ title, imageUrl, description, price, userId: req.user._id });
         await newProduct.save();
@@ -59,7 +58,10 @@ exports.postAddProduct = async (req, res, next) => {
         //     errorMessage: 'Database operation failed, please try again',
         //     validationErrors: [],
         // });
-        res.redirect('/500');
+        // res.redirect('/500');
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
     // const product = new Product(null, title, imageUrl, description, price);
     // console.log(product);
@@ -91,31 +93,31 @@ exports.postAddProduct = async (req, res, next) => {
     //     .catch(err => console.log(err));
 };
 
-exports.getEditProduct = (req, res, next) => {
+exports.getEditProduct = async (req, res, next) => {
     const editMode = req.query.edit;
     if (!editMode) {
         return res.redirect('/');
     }
     const productId = req.params.productId;
-    Product.findById(productId)
-        // req.user
-        //     .getProducts({ where: { id: productId } })
-        // Product.findByPk(productId)
-        .then(product => {
-            if (!product) {
-                return res.redirect('/');
-            }
-            res.render('admin/edit-product', {
-                pageTitle: 'Edit Product',
-                path: '/admin/edit-product',
-                editing: editMode,
-                product,
-                hasError: false,
-                errorMessage: null,
-                validationErrors: [],
-            });
-        })
-        .catch(e => console.log(e));
+    try {
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.redirect('/');
+        }
+        res.render('admin/edit-product', {
+            pageTitle: 'Edit Product',
+            path: '/admin/edit-product',
+            editing: editMode,
+            product,
+            hasError: false,
+            errorMessage: null,
+            validationErrors: [],
+        });
+    } catch (err) {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
+    }
 };
 
 exports.postEditProduct = async (req, res, next) => {
@@ -150,7 +152,9 @@ exports.postEditProduct = async (req, res, next) => {
         console.log('updated product');
         res.redirect('/admin/products'); // move redirect here so we redirect after promise is fulfilled
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 };
 
@@ -164,7 +168,9 @@ exports.getAdminProducts = async (req, res, next) => {
             path: '/admin/products',
         });
     } catch (err) {
-        console.log(e);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 };
 
@@ -176,6 +182,8 @@ exports.postDeleteProducts = async (req, res, next) => {
         console.log('DESTROYED PRODUCT');
         res.redirect('/admin/products');
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 };

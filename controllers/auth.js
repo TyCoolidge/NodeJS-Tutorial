@@ -69,7 +69,9 @@ exports.postSignup = async (req, res, next) => {
             html: '<h1>Signup Successful</h1>',
         });
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 };
 
@@ -138,7 +140,9 @@ exports.postReset = (req, res, next) => {
                 `,
             });
         } catch (err) {
-            console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(err);
         }
     });
 };
@@ -155,7 +159,9 @@ exports.getNewPassword = async (req, res, next) => {
             passwordToken: token,
         });
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 };
 
@@ -179,6 +185,8 @@ exports.postNewPassword = async (req, res, next) => {
         const result = await user.save();
         if (result) res.redirect('/login');
     } catch (err) {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
     }
 };
