@@ -121,7 +121,6 @@ exports.postReset = (req, res, next) => {
             }
             const token = buffer.toString('hex');
             const user = await User.findOne({ email: req.body.email });
-            console.log({ user });
             if (!user) {
                 req.flash('error', 'No account with that email found.');
                 return res.redirect('/reset');
@@ -169,19 +168,16 @@ exports.postNewPassword = async (req, res, next) => {
     const newPassword = req.body.password;
     const userId = req.body.userId;
     const passwordToken = req.body.passwordToken;
-    console.log({ newPassword, userId, passwordToken });
     try {
         const user = await User.findOne({
             resetToken: passwordToken,
             resetTokenExpire: { $gt: Date.now() },
             _id: userId,
         });
-        console.log({ user });
         const newPasswordToken = await bcrypt.hash(newPassword, 12);
         user.password = newPasswordToken;
         user.resetToken = undefined;
         user.resetTokenExpire = undefined;
-        console.log({ user });
         const result = await user.save();
         if (result) res.redirect('/login');
     } catch (err) {

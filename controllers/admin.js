@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const { validationResult } = require('express-validator');
+const fileHelper = require('../util/file');
 
 exports.getAddProduct = (req, res, next) => {
     // res.send(
@@ -19,7 +20,24 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = async (req, res, next) => {
-    const { title, imageUrl, description, price } = req.body;
+    const { title, description, price } = req.body;
+    // IMPORTANT NOT TO SAVE FILES IN DB (too much memory)
+    const image = req.file;
+    if (!image) {
+        return res.status(422).render('admin/edit-product', {
+            pageTitle: 'Add Product',
+            path: '/admin/edit-product',
+            editing: false,
+            hasError: true,
+            product: {
+                title,
+                description,
+                price,
+            },
+            errorMessage: 'Attached file is not an image',
+            validationErrors: [],
+        });
+    }
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(422).render('admin/edit-product', {
@@ -29,7 +47,6 @@ exports.postAddProduct = async (req, res, next) => {
             hasError: true,
             product: {
                 title,
-                imageUrl,
                 description,
                 price,
             },
@@ -37,6 +54,7 @@ exports.postAddProduct = async (req, res, next) => {
             validationErrors: errors.array(),
         });
     }
+    const imageUrl = image.path;
     try {
         // console.log(req);
         const newProduct = new Product({ title, imageUrl, description, price, userId: req.user._id });
@@ -122,11 +140,11 @@ exports.getEditProduct = async (req, res, next) => {
 
 exports.postEditProduct = async (req, res, next) => {
     const productId = req.body.productId;
-    const { title, imageUrl, description, price } = req.body;
+    const { title, description, price, imageUrl } = req.body;
+    const image = req.file;
     const errors = validationResult(req);
     try {
         if (!errors.isEmpty()) {
-            console.log(errors);
             return res.status(422).render('admin/edit-product', {
                 pageTitle: 'Edit Product',
                 path: '/admin/edit-product',
@@ -134,7 +152,6 @@ exports.postEditProduct = async (req, res, next) => {
                 hasError: true,
                 product: {
                     title,
-                    imageUrl,
                     description,
                     price,
                     _id: productId,
@@ -143,10 +160,15 @@ exports.postEditProduct = async (req, res, next) => {
                 validationErrors: errors.array(),
             });
         }
+        const modifier = { title, description, price };
+        if (image) {
+            fileHelper.deleteFile(imageUrl);
+            modifier.imageUrl = image.path;
+        }
         const product = await Product.findOneAndUpdate(
             // if product is found, then we will update
             { _id: productId, userId: req.user._id },
-            { title, imageUrl, description, price }
+            modifier
         );
         if (!product) return res.redirect('/');
         console.log('updated product');
@@ -176,7 +198,9 @@ exports.getAdminProducts = async (req, res, next) => {
 
 exports.postDeleteProducts = async (req, res, next) => {
     try {
-        const productId = req.body.productId;
+        const { imageUrl, productId } = req.body;
+        fileHelper.deleteFile(imageUrl);
+
         const result = await Product.findOneAndDelete({ _id: productId, userId: req.user._id });
         if (!result) return res.redirect('/');
         console.log('DESTROYED PRODUCT');

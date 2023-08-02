@@ -1,3 +1,8 @@
+const fs = require('fs');
+const path = require('path');
+
+const PDFDocument = require('pdfkit');
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -59,7 +64,6 @@ exports.getProduct = async (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-    console.log('index');
     // Product.findAll().then(products =>console.log(products)).catch(err => console.log(err))
     fetchAllRender('shop/index', 'Shop', '/', req, res);
 };
@@ -69,7 +73,6 @@ exports.getCart = async (req, res, next) => {
     try {
         const userObj = await req.user.populate('cart.items.productId');
         const cartProducts = userObj.cart.items;
-        console.log({ cartProducts });
         res.render('shop/cart', {
             path: '/cart',
             pageTitle: 'Your Cart',
@@ -104,7 +107,6 @@ exports.postCart = async (req, res, next) => {
     try {
         const product = await Product.findById(productId);
         const result = await req.user.addToCart(product);
-        console.log(result);
         res.redirect('/cart');
     } catch (err) {
         const error = new Error(err);
@@ -180,7 +182,6 @@ exports.postOrder = async (req, res, next) => {
 exports.getOrders = async (req, res, next) => {
     try {
         const orders = await Order.find({ 'user.userId': req.user._id });
-        console.log(orders);
         res.render('shop/orders', {
             path: '/orders',
             pageTitle: 'Your Orders',
@@ -198,4 +199,42 @@ exports.getCheckout = (req, res, next) => {
         path: '/checkout',
         pageTitle: 'Checkout',
     });
+};
+
+exports.getInvoice = async (req, res, next) => {
+    const orderId = req.params.orderId;
+    try {
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return next(new Error('No order found.'));
+        }
+        if (order.user.userId.toString() !== req.user._id.toString()) {
+            return next(new Error('Unauthorized'));
+        }
+        const invoiceName = `invoice-${orderId}.pdf`;
+        const invoicePath = path.join('data', 'invoices', invoiceName);
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
+
+        const pdfDoc = new PDFDocument();
+        pdfDoc.pipe(fs.createWriteStream(invoicePath));
+        pdfDoc.pipe(res);
+
+        pdfDoc.fontSize(26).text('Invoice', {
+            underline: true,
+        });
+        pdfDoc.text('-------------------------');
+
+        let totalPrice = 0;
+        order.products.forEach(item => {
+            totalPrice += item.quantity * item.product.price;
+            pdfDoc.fontSize(14).text(`${item.product.title} - ${item.quantity} x $${item.product.price}`);
+        });
+        pdfDoc.text('-------------------------');
+        pdfDoc.fontSize(20).text(`Total Price: $${totalPrice}`);
+        pdfDoc.end();
+    } catch (err) {
+        next(err);
+    }
 };

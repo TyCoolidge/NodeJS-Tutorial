@@ -14,7 +14,7 @@ const productValidatorMiddleware = [
         .isString()
         .isLength({ min: 3, max: 50 })
         .withMessage('Title must be at least 3 chars and max 50 chars'),
-    body('imageUrl').isURL().withMessage('Please enter a valid URL link'),
+    // body('imageUrl').isURL().withMessage('Please enter a valid URL link'),
     body('price').isCurrency().withMessage('Please enter a valid price'),
     body('description')
         .trim()
