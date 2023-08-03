@@ -31,7 +31,10 @@
               </article>
               <% }); %>
           </div>
-          <% } else { %>
-            <h1>No products</h1>
-            <% } %>
-              <%- include('../includes/end.ejs') %>
+
+          <%- include('../includes/pagination.ejs', { currentPage, nextPage, previousPage, lastPage, hasNextPage,
+            hasPreviousPage }) %>
+            <% } else { %>
+              <h1>No products</h1>
+              <% } %>
+                <%- include('../includes/end.ejs') %>

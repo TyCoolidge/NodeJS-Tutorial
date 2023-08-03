@@ -6,6 +6,7 @@ const PDFDocument = require('pdfkit');
 const Product = require('../models/product');
 const Order = require('../models/order');
 
+const ITEMS_PER_PAGE = 2;
 // old
 // const fetchAllRender = (page, pageTitle, path, res) => {
 //     Product.fetchAll()
@@ -20,13 +21,24 @@ const Order = require('../models/order');
 // };
 
 // with sequelize
-const fetchAllRender = async (page, pageTitle, path, req, res) => {
+const fetchAllRender = async (page, pageTitle, path, req, res, next) => {
+    const pageNumber = +req.query.page || 1;
+
     try {
-        const products = await Product.find();
+        const totalProducts = await Product.find().count();
+        const products = await Product.find()
+            .skip((pageNumber - 1) * ITEMS_PER_PAGE)
+            .limit(ITEMS_PER_PAGE);
         res.render(page, {
             products,
             pageTitle,
             path,
+            currentPage: pageNumber,
+            hasNextPage: ITEMS_PER_PAGE * pageNumber < totalProducts,
+            hasPreviousPage: pageNumber > 1,
+            nextPage: pageNumber + 1,
+            previousPage: pageNumber - 1,
+            lastPage: Math.ceil(totalProducts / ITEMS_PER_PAGE),
             // isAuthenticated: req.session.isLoggedIn,
             // csrfToken: req.csrfToken(),
         });
@@ -38,7 +50,7 @@ const fetchAllRender = async (page, pageTitle, path, req, res) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    fetchAllRender('shop/product-list', 'All products', '/products', req, res);
+    fetchAllRender('shop/product-list', 'All products', '/products', req, res, next);
 };
 
 exports.getProduct = async (req, res, next) => {
@@ -65,7 +77,7 @@ exports.getProduct = async (req, res, next) => {
 
 exports.getIndex = (req, res, next) => {
     // Product.findAll().then(products =>console.log(products)).catch(err => console.log(err))
-    fetchAllRender('shop/index', 'Shop', '/', req, res);
+    fetchAllRender('shop/index', 'Shop', '/', req, res, next);
 };
 
 exports.getCart = async (req, res, next) => {
