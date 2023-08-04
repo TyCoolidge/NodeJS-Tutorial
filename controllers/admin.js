@@ -196,18 +196,17 @@ exports.getAdminProducts = async (req, res, next) => {
     }
 };
 
-exports.postDeleteProducts = async (req, res, next) => {
+exports.deleteProducts = async (req, res, next) => {
     try {
-        const { imageUrl, productId } = req.body;
-        fileHelper.deleteFile(imageUrl);
-
-        const result = await Product.findOneAndDelete({ _id: productId, userId: req.user._id });
-        if (!result) return res.redirect('/');
-        console.log('DESTROYED PRODUCT');
-        res.redirect('/admin/products');
+        const productId = req.params.productId;
+        const deletedProduct = await Product.findOneAndDelete({ _id: productId, userId: req.user._id });
+        fileHelper.deleteFile(deletedProduct.imageUrl);
+        if (!deletedProduct) return res.redirect('/');
+        res.status(200).json({ message: 'Success' });
     } catch (err) {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(err);
+        res.status(500).json({ message: err.message });
+        // const error = new Error(err);
+        // error.httpStatusCode = 500;
+        // return next(err);
     }
 };
