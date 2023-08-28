@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const stripe = require('stripe')(process.env.STRIPE_SECRET);
 
 const PDFDocument = require('pdfkit');
 
@@ -166,7 +167,46 @@ exports.postCartDeleteProduct = async (req, res, next) => {
     }
 };
 
-exports.postOrder = async (req, res, next) => {
+exports.getCheckout = async (req, res, next) => {
+    try {
+        const userObj = await req.user.populate('cart.items.productId');
+        const cartProducts = userObj.cart.items;
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: cartProducts.map(item => {
+                return {
+                    price_data: {
+                        product_data: {
+                            name: item.productId.title,
+                            description: item.productId.description,
+                        },
+                        unit_amount: item.productId.price * 100,
+                        currency: 'usd',
+                    },
+                    quantity: item.quantity,
+                };
+            }),
+            mode: 'payment',
+            success_url: req.protocol + '://' + req.get('host') + '/checkout/success',
+            cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel',
+        });
+
+        res.render('shop/checkout', {
+            path: '/checkout',
+            pageTitle: 'Checkout',
+            products: cartProducts,
+            totalSum: cartProducts.reduce((acc, curr) => (acc += curr.quantity * curr.productId.price), 0),
+            sessionId: session.id,
+        });
+    } catch (err) {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(err);
+    }
+};
+
+exports.getOrder = async (req, res, next) => {
     try {
         const userObj = await req.user.populate('cart.items.productId');
         const products = userObj.cart.items.map(item => {
@@ -204,13 +244,6 @@ exports.getOrders = async (req, res, next) => {
         error.httpStatusCode = 500;
         return next(err);
     }
-};
-
-exports.getCheckout = (req, res, next) => {
-    res.render('shop/checkout', {
-        path: '/checkout',
-        pageTitle: 'Checkout',
-    });
 };
 
 exports.getInvoice = async (req, res, next) => {
