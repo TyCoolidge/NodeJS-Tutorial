@@ -1,0 +1,68 @@
+REST APIs
+
+- Not every UI requires HTML pages
+  - (ex: mobile apps)
+  - SPA apps
+  - Service APIs (google maps)
+
+REST = Representational State Transfer
+- Transfer Data instead of HTML (UI)
+
+Data Formats
+- HTML
+  - Data + Structure
+  - Contains UI
+  - Unnecessarily difficult to parse if you just need the data
+- Plain Text
+  - data
+  - No UI assumptions
+  - Unnecessarily difficult to parse, no clear data structure
+- XML
+  - Data
+  - No UI assumptions
+  - Machine readable but relatively verbose; XML-parse needed
+- JSON
+  - Data
+  - No UI assumptions
+  - Machine readable & consise; can be converted to JS
+
+REST Principles
+
+- Uniform Interface
+  - Clearly defined API endpoints w/ clear request & response data structure
+
+- Stateless interactions
+  - Server and client dont store any connection history, every
+  request is handled seperate
+
+- Cacheable
+  - Servers may set caching headers to allow client to cache responses
+
+- Client-Server
+  - Server / client are separate, client is not concerened with
+  persistent data storage
+
+- Layered System
+  - Server may forward request to other APIs because we cant
+  rely on that server to always return us the data
+
+- Code on Demand
+  - Execute code may be transferred from server to client
+
+CORS
+  - Cross-Origin Resource Sharing
+
+  - If client and server share same domain then sharing works fine
+  - Else youll get a CORS error
+
+REST Concepts & Ideas
+- REST APIs are all about data, no UI logic is exchanges
+- REST APIs are normal Node servers which export different endpoints
+(Http method + path) for client to send requests to
+- JSON is the common data format that is used both for req & response
+- REST APIs are decoupled (isolated) from the client that use them
+
+Req & Res
+- SHould Attach data in JSON and let the other end know by setting
+"Content-Type" header (Express does this auto when using .json)
+- CORS error occur when using an API that does not set CORS headers
