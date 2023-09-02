@@ -1,1 +1,14 @@
 Advanced REST API Topics
+
+From "Classic" to REST API
+- Most server side code does not change,
+only request & respone data changes
+- More http methods are available
+- REST API does not have any sessions
+
+Authentication
+- Since no sessions are used, auth works differently
+- Each request needs to send data to prove request is authenticated
+- JWT is a common way of storing auth and the client and validating
+on the server
+- JWTs are signed by server and can only be validated on the server (using a private key)
