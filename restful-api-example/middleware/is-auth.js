@@ -7,7 +7,6 @@ module.exports = (req, res, next) => {
             const error = new Error('Not authenticated.');
             error.statusCode = 401;
             throw error;
-            r;
         }
         const token = authHeader.split(' ')[1];
         const decodedToken = jwt.verify(token, 'superdupersecret');

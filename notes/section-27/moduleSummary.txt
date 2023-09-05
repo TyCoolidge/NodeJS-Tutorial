@@ -1,0 +1,13 @@
+WebSockets vs HTTP 
+
+HTTP 
+- Client sends request and server sends back respone
+
+WebSockets
+-  Server pushes data to the client
+
+"You can use both together in one and the same Node app"
+
+Popular WebSockets
+
+Socket.IO

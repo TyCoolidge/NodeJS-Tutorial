@@ -1,5 +1,4 @@
 const path = require('path');
-
 const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -52,5 +51,14 @@ app.use((error, req, res, next) => {
 
 mongoose
     .connect('mongodb+srv://tyacoolidge:E6imS1oVko9dYP4L@cluster0.8ljpbvu.mongodb.net/restfulTest')
-    .then(result => app.listen(8080))
+    .then(result => {
+        const server = app.listen(8080, () => console.log('server started 8080 port.'));
+        const io = require('./socket').init(server);
+        io.on('connection', socket => {
+            console.log('Client connected');
+            socket.on('disconnect', () => {
+                console.log('user disconnected');
+            });
+        });
+    })
     .catch(err => console.log(err));
