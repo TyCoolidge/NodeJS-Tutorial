@@ -9,31 +9,57 @@ class SinglePost extends Component {
         author: '',
         date: '',
         image: '',
-        content: ''
+        content: '',
     };
 
     componentDidMount() {
         const postId = this.props.match.params.postId;
-        fetch(`http://localhost:8080/feed/post/${postId}`, {
-            headers: {
-                Authorization: 'Bearer ' + this.props.token
-            }
-        })
-            .then(res => {
-                if (res.status !== 200) {
-                    throw new Error('Failed to fetch status');
+        const graphqlQuery = {
+            query: `
+                query FetchSinglePost($_id: ID!) {
+                    getPost(_id: $_id) {
+                        title
+                        content
+                        creator {
+                            name
+                        }
+                        createdAt
+                        imageUrl
+                    }
                 }
+            `,
+            variables: {
+                _id: postId,
+            },
+        };
+        fetch(`http://localhost:8080/graphql`, {
+            method: 'POST',
+            headers: {
+                Authorization: 'Bearer ' + this.props.token,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(graphqlQuery),
+        })
+            // REST API
+            // fetch(`http://localhost:8080/feed/post/${postId}`, {
+            //     headers: {
+            //         Authorization: 'Bearer ' + this.props.token
+            //     }
+            // })
+            .then(res => {
                 return res.json();
             })
             .then(resData => {
-                console.log({ resData });
+                if (resData.errors) {
+                    throw new Error('Failed to fetch post.');
+                }
                 this.setState({
-                    title: resData.post.title,
-                    author: resData.post.creator.name,
-                    image: 'http://localhost:8080/' + resData.post.imageUrl,
-                    // image: resData.post.imageUrl,
-                    date: new Date(resData.post.createdAt).toLocaleDateString('en-US'),
-                    content: resData.post.content
+                    title: resData.data.getPost.title,
+                    author: resData.data.getPost.creator.name,
+                    image: 'http://localhost:8080/' + resData.data.getPost.imageUrl,
+                    // image: resData.data.getPost.imageUrl,
+                    date: new Date(resData.data.getPost.createdAt).toLocaleDateString('en-US'),
+                    content: resData.data.getPost.content,
                 });
             })
             .catch(err => {

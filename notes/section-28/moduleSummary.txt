@@ -1,0 +1,42 @@
+GraphQL
+- used with any language
+
+REST API
+- Stateless, client-independent API for exchanging data
+
+REST API Limitations
+- What if we only need title & id?
+
+Solution 1
+- Create new REST API Endpoint
+- PROBLEM: Lots of endpoints and updating
+
+Solution 2
+- Use query paramaters
+- PROBLEM: Api becomes hard to understand
+
+GraphQL API
+- Stateless, client-independent API for exchanging data w/ higher query flexibility
+
+Client -> sends POST /graphql -> Server 
+
+Query example
+- operation types
+  - query => retrieve data("get")
+  - mutation => manipulate data("post, put, patch, delete")
+  - subscription => set up realtime connection via websockets
+
+- server resolves analyses request body, fetches, prepares, and returns data
+{
+  query { => operation type
+    user { => operation endpoint
+      name => requested fields
+      age 
+    }
+  }
+}
+
+Core Concepts
+ - Higher flexibility than REST APIs due to custom query language
+ - all requests are sent to POST /graphql
+ - REST APIs are great for static data (file upload, scenarios where you need the same data all the time)

@@ -174,6 +174,7 @@ exports.deletePost = async (req, res, next) => {
             action: 'delete',
             postId,
         });
+
         res.status(200).json({
             message: 'Post deleted.',
             post,
