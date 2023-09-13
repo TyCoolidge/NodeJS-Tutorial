@@ -1,0 +1,11 @@
+Preparing code for production
+
+- Use env variables
+- use production api keys
+- reduce error output details -> dont send sensitive info to your users
+- set secure response headers
+
+Often handled by the Hosting Provider
+- add asset compression -> reduce response size so client can download less
+- configure logging
+- use ssl / tls -> encrypt data in transit
