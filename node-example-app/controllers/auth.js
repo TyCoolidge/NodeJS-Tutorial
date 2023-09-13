@@ -135,7 +135,9 @@ exports.postReset = (req, res, next) => {
                 subject: 'Password reset',
                 html: `
                     <p>Your requested a password reset</p>
-                    <p>Click this <a href="http://localhost:3800/reset/${token}">link</a> to set a new password.</p>
+                    <p>Click this <a href="${req.protocol}://${req.get('host')}${
+                    req.originalUrl
+                }/${token}">link</a> to set a new password.</p>
                 `,
             });
         } catch (err) {
