@@ -100,11 +100,11 @@ const authRoutes = require('./routes/auth');
 const errorController = require('./controllers/not-found');
 const User = require('./models/user');
 
-const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+// const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
 app.use(helmet());
 app.use(compression());
-app.use(morgan('combined', { stream: accessLogStream })); // manually adding request logs to check what is going on with the server
+// app.use(morgan('combined', { stream: accessLogStream })); // manually adding request logs to check what is going on with the server
 
 app.use(express.urlencoded({ extended: false }));
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
