@@ -3,6 +3,9 @@
     "version": "1.0.0",
     "description": "Complete Node Tutorial",
     "main": "app.js",
+    "engines": {
+        "node": "19.5.0"
+    },
     "scripts": {
         "test": "jest .",
         "start": "nodemon app.js",
