@@ -23,6 +23,8 @@
 
 // USING EXPRESS - Section 5
 const path = require('path');
+const fs = require('fs');
+const https = require('https');
 
 const express = require('express');
 const session = require('express-session');
@@ -30,18 +32,25 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const multer = require('multer');
 const flash = require('connect-flash');
-// TODO  process ENV didnt work here
-const MONGO_URI = `mongodb+srv://tyacoolidge:E6imS1oVko9dYP4L@cluster0.8ljpbvu.mongodb.net/shop`;
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+
+require('dotenv').config();
+
+const MONGO_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.8ljpbvu.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}`;
 // const expressHandbars = require('express-handlebars');
 // const mongoConnect = require('./util/database').mongoConnect;
 const mongoose = require('mongoose');
-require('dotenv').config();
 const app = express();
 const store = new MongoDBStore({
     uri: MONGO_URI,
     collection: 'sessions',
 });
 const csrfProtection = csrf();
+
+const privateKey = fs.readFileSync('server.key');
+const certificate = fs.readFileSync('server.cert');
 
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -90,6 +99,12 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 const errorController = require('./controllers/not-found');
 const User = require('./models/user');
+
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+
+app.use(helmet());
+app.use(compression());
+app.use(morgan('combined', { stream: accessLogStream })); // manually adding request logs to check what is going on with the server
 
 app.use(express.urlencoded({ extended: false }));
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
@@ -196,6 +211,7 @@ app.use((error, req, res, next) => {
 mongoose
     .connect(MONGO_URI)
     .then(() => {
-        app.listen(3800);
+        // https.createServer({ key: privateKey, cert: certificate }, app).listen(process.env.PORT || 3000); //manually adding ssl server, usually host provider will cover
+        app.listen(process.env.PORT || 3000);
     })
     .catch(err => console.log(err));
