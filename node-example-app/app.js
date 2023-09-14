@@ -102,7 +102,17 @@ const User = require('./models/user');
 
 // const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
-app.use(helmet());
+// app.use(
+//     helmet({
+//         contentSecurityPolicy: {
+//             directives: {
+//                 defaultSrc: ["'self'"],
+//                 scriptSrc: ["'self'", 'js.stripe.com'], // Add the necessary domains
+//                 // Add other directives as needed
+//             },
+//         },
+//     })
+// );
 app.use(compression());
 // app.use(morgan('combined', { stream: accessLogStream })); // manually adding request logs to check what is going on with the server
 
