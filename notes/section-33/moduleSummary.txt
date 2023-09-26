@@ -1,0 +1,17 @@
+TypeScript
+
+- Superset to JS
+- must be compilied into javascript so browser can read
+
+- adds next gen js features (complied down for older browsers)
+- adds non js features like interfaces or generics
+- meta programming features like decorators
+- rich config options
+- modern tooling that helps in non typescript projects
+
+TYPES 
+- number
+- string
+- boolean
+- object
+- array

@@ -1,0 +1,11 @@
+Manually Testing Vs Automated Testing
+
+Manual
+  - use app like user
+  cons:
+    - can easy forget to test
+
+Auto
+  - cover all core features and run auto after every code change
+  cons:
+    - only test what you define, hard to test UI

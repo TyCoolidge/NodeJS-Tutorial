@@ -1,0 +1,7 @@
+What is Deno
+
+- JS runtime similar to Node
+- allows us to run JS outside of browser
+- Deno supports both TS & JS
+- supports url imports and modern js features (Promies) out the box
+- secured by default and requires explicit execution permissions

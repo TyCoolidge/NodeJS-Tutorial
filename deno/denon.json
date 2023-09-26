@@ -1,0 +1,12 @@
+{
+    "scripts": {
+        "start": {
+            "cmd": "deno run -A app.ts",
+            "args": ["run", "--allow-net", "your-script.ts"],
+            "desc": "Start your Deno application"
+        }
+    },
+    "watch": {
+        "exts": ["ts", "js", "json"]
+    }
+}
